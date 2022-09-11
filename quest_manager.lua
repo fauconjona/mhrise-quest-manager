@@ -13,7 +13,7 @@ local enemy_type_field = enemy_character_base_type_def:get_field("<EnemyType>k__
 local config = {
     end_quest_time = 60.0
 }
-local debug = true
+local debug = false
 
 local function clear_quest()
     quest_manager:call("setQuestClear")
