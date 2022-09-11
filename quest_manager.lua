@@ -13,6 +13,7 @@ local enemy_type_field = enemy_character_base_type_def:get_field("<EnemyType>k__
 local config = {
     end_quest_time = 60.0
 }
+local debug = true
 
 local function clear_quest()
     quest_manager:call("setQuestClear")
@@ -81,23 +82,29 @@ re.on_draw_ui(function()
                             if not is_hyakuryu then
                                 if imgui.button("Kill") then
                                     boss:call("questEnemyDie", 0)
+                                    boss:call("dieSelf")
                                 end
                                 if imgui.button("Capture") then
                                     boss:call("questEnemyDie", 1)
-                                end                                
+                                    boss:call("dieSelf")
+                                end                     
                                 if imgui.button("Request go away") then
                                     boss:call("requestBossAwayProcess", 44)
                                 end
                                 imgui.same_line()
                                 imgui.text(" (Not instant)")
                             else 
-                                if imgui.button("Kill and exit") then
+                                if imgui.button("Kill") then
                                     boss:call("questEnemyDie", 0)
+                                    boss:call("dieSelf")
                                     boss:call("startHyakuryuExit")
                                 end
                                 if imgui.button("Force exit") then
                                     boss:call("setImmediatelyForceHyakuryuExit")
                                 end
+                            end
+                            if debug and imgui.button("DEBUG") then
+                                DEBUG_BOSS = boss
                             end
                             imgui.tree_pop()
                         end
