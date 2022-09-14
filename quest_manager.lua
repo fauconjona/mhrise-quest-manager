@@ -44,6 +44,65 @@ local function write_config()
     json.dump_file("quest_manager.json", config)
 end
 
+local function tree_boss(boss, is_hyakuryu, count)
+    local enemy_type = enemy_type_field:get_data(boss)
+    if enemy_type ~= nil then                
+        local enemy_name = get_enemy_name_message_method:call(message_manager, enemy_type)
+        if enemy_name == nil then
+            enemy_name = "Unknown"
+        end
+
+        local is_target = boss:call("isQuestTargetEnemy")
+
+        if is_target then
+            enemy_name = enemy_name .. " (Target)"
+        end
+
+        if imgui.tree_node(count .. " - " .. enemy_name) then
+            if not is_hyakuryu then
+                if imgui.button("Kill") then
+                    boss:call("questEnemyDie", 0)
+                    boss:call("dieSelf")
+                end
+                if imgui.button("Capture") then
+                    boss:call("questEnemyDie", 1)
+                    boss:call("dieSelf")
+                end                     
+                if imgui.button("Request go away") then
+                    boss:call("requestBossAwayProcess", 44)
+                end
+                imgui.same_line()
+                imgui.text(" (Not instant)")
+            else 
+                if imgui.button("Kill") then
+                    boss:call("questEnemyDie", 0)
+                    boss:call("dieSelf")
+                    boss:call("startHyakuryuExit")
+                end
+                if imgui.button("Force exit") then
+                    boss:call("setImmediatelyForceHyakuryuExit")
+                end
+            end
+            if debug and imgui.button("DEBUG") then
+                DEBUG_BOSS = boss
+            end
+            imgui.tree_pop()
+        end
+    end
+end
+
+local function tree_bosses()
+    if imgui.tree_node("Larges Monsters") then
+        local is_hyakuryu = quest_manager:call("isHyakuryuQuest")
+        local count = enemy_manager:call("getBossEnemyCount")
+        for i = 0, count - 1 do
+            local boss = enemy_manager:call("getBossEnemy", i)
+            tree_boss(boss, is_hyakuryu, i + 1)
+        end
+        imgui.tree_pop()
+    end
+end
+
 re.on_draw_ui(function()
     if not quest_manager then
         init_singletons()
@@ -52,7 +111,6 @@ re.on_draw_ui(function()
     if imgui.tree_node("Quest Manager") then
 
         local status = quest_manager:get_field("_QuestStatus")
-        local is_hyakuryu = quest_manager:call("isHyakuryuQuest")
 
         if status == 2 then 
             if imgui.button("Clear Quest") then
@@ -61,58 +119,7 @@ re.on_draw_ui(function()
             imgui.same_line()
             imgui.text(" (You will not get monsters rewards)")
 
-            if imgui.tree_node("Big Monsters") then
-                local count = enemy_manager:call("getBossEnemyCount")
-                for i = 0, count - 1 do
-                    local boss = enemy_manager:call("getBossEnemy", i)
-                    local enemy_type = enemy_type_field:get_data(boss)
-                    if enemy_type ~= nil then                
-                        local enemy_name = get_enemy_name_message_method:call(message_manager, enemy_type)
-                        if enemy_name == nil then
-                            enemy_name = "Unknown"
-                        end
-
-                        local is_target = boss:call("isQuestTargetEnemy")
-
-                        if is_target then
-                            enemy_name = enemy_name .. " (Target)"
-                        end
-
-                        if imgui.tree_node(enemy_name) then
-                            if not is_hyakuryu then
-                                if imgui.button("Kill") then
-                                    boss:call("questEnemyDie", 0)
-                                    boss:call("dieSelf")
-                                end
-                                if imgui.button("Capture") then
-                                    boss:call("questEnemyDie", 1)
-                                    boss:call("dieSelf")
-                                end                     
-                                if imgui.button("Request go away") then
-                                    boss:call("requestBossAwayProcess", 44)
-                                end
-                                imgui.same_line()
-                                imgui.text(" (Not instant)")
-                            else 
-                                if imgui.button("Kill") then
-                                    boss:call("questEnemyDie", 0)
-                                    boss:call("dieSelf")
-                                    boss:call("startHyakuryuExit")
-                                end
-                                if imgui.button("Force exit") then
-                                    boss:call("setImmediatelyForceHyakuryuExit")
-                                end
-                            end
-                            if debug and imgui.button("DEBUG") then
-                                DEBUG_BOSS = boss
-                            end
-                            imgui.tree_pop()
-                        end
-                    end
-                
-                end
-                imgui.tree_pop()
-            end
+            tree_bosses()
         else 
             imgui.text("Not in quest...")
         end
