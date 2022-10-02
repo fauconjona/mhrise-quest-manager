@@ -11,9 +11,11 @@ local enemy_type_field = enemy_character_base_type_def:get_field("<EnemyType>k__
 
 -- Settings
 local config = {
+    end_quest_time_enabled = true,
     end_quest_time = 60.0
 }
 local debug = false
+local version = '1.0.3'
 
 local function clear_quest()
     quest_manager:call("setQuestClear")
@@ -108,8 +110,7 @@ re.on_draw_ui(function()
         init_singletons()
         return
     end
-    if imgui.tree_node("Quest Manager") then
-
+    if imgui.tree_node("Quest Manager (" .. version .. ")") then
         local status = quest_manager:get_field("_QuestStatus")
 
         if status == 2 then 
@@ -126,6 +127,7 @@ re.on_draw_ui(function()
 
         if imgui.tree_node("Settings") then
             local changed = false
+            changed, config.end_quest_time_enabled = imgui.checkbox("Enable end quest time", config.end_quest_time_enabled)
             changed, config.end_quest_time = imgui.drag_int("End quest time", config.end_quest_time, 1, 1, 360)
             if changed then
                 write_config()
@@ -137,16 +139,27 @@ re.on_draw_ui(function()
     end
 end)
 
-re.on_pre_application_entry("UpdateBehavior", function() 
+local end_quest_time_changed = false
+re.on_application_entry("UpdateBehavior", function() 
     if not quest_manager then
         return nil
     end
 
     local status = quest_manager:get_field("_QuestStatus")
-    local end_flow = quest_manager:get_field("_QuestEndFlowTimer")
 
-    if status == 3 and end_flow > config.end_quest_time then
-        quest_manager:set_field("_QuestEndFlowTimer", config.end_quest_time)
+    if config.end_quest_time_enabled then
+        if status == 3 then
+            if not end_quest_time_changed then 
+                local end_flow = quest_manager:get_field("_QuestEndFlowTimer")
+                if math.ceil(end_flow) ~= config.end_quest_time then
+                    quest_manager:set_field("_QuestEndFlowTimer", config.end_quest_time)
+                else 
+                    end_quest_time_changed = true
+                end
+            end
+        else
+            end_quest_time_changed = false
+        end
     end
 end)
 
