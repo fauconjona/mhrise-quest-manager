@@ -15,14 +15,23 @@ In a quest, Open reframework then go to: Script Generated UI > Quest Manager. Al
 
 Normal quest:
 - Kill : Slain the monster 
+- Enable Capture : Set the monster capturable
 - Capture : Trigger the capture event and slain him (Can't do a real capture)
 - Request go away : Request the monster to leave the map, it's not instantaneous
 
 Rampage quest:
 - Kill : Kill the monster to get rewards
 - Force exit : Immediatly force the monster to exit
-- 
-*I didn't try SB yet, so I don't know if I need to manage other types of quest*
+  
+### Custom actions
+
+Possibility to execute an action on the nearest monster when doing an emote.
+
+Actions:
+- Clear quest
+- Kill
+- Capture
+- Force exit (only Rampage)
 
 ## Settings
 
