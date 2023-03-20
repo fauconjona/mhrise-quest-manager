@@ -17,7 +17,7 @@ local config = {
     actions = {}
 }
 local debug = false
-local version = '1.0.3'
+local version = '1.1.0'
 
 local emote_dict = {
     [732121360] = "Greetings",
@@ -258,9 +258,6 @@ local function tree_boss(boss, is_hyakuryu, count)
                 end
                 imgui.same_line()
                 imgui.text(" (Not instant)")
-                if imgui.button("Debug") then
-                    GLOBAL_MONSTER = boss
-                end
             else 
                 if imgui.button("Force exit") then
                     force_exit(boss)
@@ -323,12 +320,8 @@ re.on_draw_ui(function()
             imgui.text("Not in quest...")
         end
 
-        if imgui.tree_node("Settings") then
+        if imgui.tree_node("Custom actions") then
             local changed = false
-            changed, config.end_quest_time_enabled = imgui.checkbox("Enable end quest time", config.end_quest_time_enabled)
-            changed, config.end_quest_time = imgui.drag_int("End quest time", config.end_quest_time, 1, 1, 360)
-
-            imgui.text("Custom actions:")
 
             if config.actions == nil then
                 config.actions = {}
@@ -390,10 +383,17 @@ re.on_draw_ui(function()
             imgui.tree_pop()
         end
 
-        if imgui.button("Debug object") then
-            start_debug()
+        if imgui.tree_node("Settings") then
+            local changed = false
+            changed, config.end_quest_time_enabled = imgui.checkbox("Enable end quest time", config.end_quest_time_enabled)
+            changed, config.end_quest_time = imgui.drag_int("End quest time", config.end_quest_time, 1, 1, 360)
+
+            if changed then
+                write_config()
+            end
+            imgui.tree_pop()
         end
-            
+
         imgui.tree_pop()
     end
 end)
