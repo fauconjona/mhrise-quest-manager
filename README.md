@@ -23,7 +23,7 @@ Rampage quest:
 - Kill : Kill the monster to get rewards
 - Force exit : Immediatly force the monster to exit
   
-### Custom actions
+### Emotes actions
 
 Possibility to execute an action on the nearest monster when doing an emote.
 

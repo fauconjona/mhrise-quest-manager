@@ -320,7 +320,7 @@ re.on_draw_ui(function()
             imgui.text("Not in quest...")
         end
 
-        if imgui.tree_node("Custom actions") then
+        if imgui.tree_node("Emote actions") then
             local changed = false
 
             if config.actions == nil then
